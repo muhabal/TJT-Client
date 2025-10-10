@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=SUSE+Mono:ital,wght@0,100..800;1,100..800&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+  <link rel="icon" href="./icons/tjt_logo_circle.png">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.15.0/dist/cdn.min.js"></script>
+  <title>TheJuicetrybe</title>
+
+  <style type="text/tailwindcss">
+    :root{
+      --font1: "SUSE Mono", sans-serif;
+      --font2: "Ubuntu", serif;
+      --primary-color: rgb(20, 20, 20);
+      --primary-hover: rgb(39, 39, 39);
+      --box-shadow1:  0 10px 15px -3px rgba(0, 0, 0, 0.966);
+    }
+
+    .font1{
+      font-family: var(--font1);
+    }
+
+    .font2{
+      font-family: var(--font2);
+    }
+
+    header{
+      background: var(--primary-color)
+    }
+
+    .hoverlist>*>a {
+      @apply p-4 duration-150 -translate-y-15 md:translate-y-0;
+    }
+
+    .card{
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+      border-radius: 1rem;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, .1);
+      margin-bottom: 2rem;
+      background-color: rgb(248, 247, 247);
+      padding-bottom: 1rem;
+    }
+    .button{
+      display: inline-flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      border-radius: .5rem;
+      cursor: pointer;
+      padding: 0 .8rem;
+      min-height: 3rem;
+      font-weight: 600;
+      box-shadow: 0 4px 3px rgba(0, 0, 0, .1);
+      transition-property: transform;
+      transition:all .1s ease;
+      color: white;
+      background-color: var(--primary-color);
+    }
+
+    .button:hover{
+      background-color: var(--primary-hover);
+    }
+    .product-card{
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      border-radius: .5rem;
+      align-items: center;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, .1);
+      background-color: white;
+      padding: 1rem;
+      transition: all .3s ease-in;
+    }
+
+    .product-card:hover{
+      box-shadow: none;
+    }
+
+    h2{
+      font-family: var(--font1);
+      font-size: 1rem;
+    }
+
+    .receipt-card>*>div{
+      @apply flex col-span-1 gap-1 items-center
+    }
+  </style>
+</head>
+<body class="bg-gray-100 font1 relative">
+  <header x-data="{ mobilenavMenu : false}" class="text-white md:flex justify-between w-screen items-center sticky top-0 z-50 [&>*]:px-8 pt-2">
+    <div class="flex items-center justify-between">
+      <logo class="text-lg">
+        <a class="flex items-center gap-1" href="">
+          <img class="h-35" src="./icons/tjt_logo_white.png" alt="">
+          <span class="font1">JuiceTrybe</span>
+        </a>
+      </logo>
+      <mobileicon class="md:hidden">
+        <a @click="mobilenavMenu = !mobilenavMenu" class="h-12 w-12 flex items-center justify-center cursor-pointer hover:bg-gray-700 duration-150 rounded-lg">
+          <img x-show="!mobilenavMenu" class="w-6 h-6" src="https://img.icons8.com/small/64/ffffff/menu.png" alt="">
+          <img x-show="mobilenavMenu" class="w-6 h-6" src="https://img.icons8.com/small/64/ffffff/delete-sign.png" alt="">
+        </a>
+      </mobileicon>      
+    </div>
+
+    <nav x-show="mobilenavMenu" class="md:!block h-screen w-screen md:h-auto md:w-auto md:relative absolute bg-inherit z-[-1]"
+    x-transition:enter="duration-300 ease-out"
+    x-transition:enter-start="opacity-0 -translate-y-35"
+    x-transition:enter-end="opacity-100 translate-y-0"
+    >
+      <ul class="font1 h-full flex flex-col md:flex-row gap-8 md:gap-0 items-center justify-center [&>li>a]:p-4 [&>li>a:hover]:bg-gray-800 [&>li>a:hover]:rounded-lg [&>li>a]:cursor-pointer select-none [&>li>a]:duration-150 -translate-y-15 md:translate-y-0">
+        <li>
+          <a href="index.html">Home</a></li>
+        <li>
+          <a href="">Pre-Order</a></li>
+        <li>
+          <a href="">About</a></li>
+        <li>
+          <a class="flex gap-1 items-center">
+            <span>Cart</span>
+            <img class="h-6" src="https://img.icons8.com/tiny-glyph/64/ffffff/shopping-cart.png" alt="shopping-cart"/>
+          </a></li>
+        <li x-data="{ dropdownOpen: false}" class="relative">
+          <a @click="dropdownOpen = !dropdownOpen" @click.away="dropdownOpen = false" class="flex items-center gap-2">
+            <img class="h-6" src="https://img.icons8.com/tiny-glyph/64/ffffff/person-male.png" alt="person-male"/>
+            <img x-bind:class="dropdownOpen ? 'rotate-180 duration-300' : ''" class="h-4" src="https://img.icons8.com/small/16/777777/expand-arrow.png" alt="expand-arrow">
+          </a>
+          <div x-show="dropdownOpen" 
+          x-transition:enter="duration-300 ease-out"
+          x-transition:enter-start="opacity-0 -translate-y-6"
+          x-transition:enter-end="opacity-100 translate-y-0"
+          class="absolute right-0 bg-white text-black shadow rounded-lg w-40 p-2 z-20">
+            <ul class="[&>li:hover]:rounded-md [&>li:hover]:bg-gray-200 [&>li>a]:p-2 [&>li>a]:flex [&>li>a]:justify-end">
+              <li><a href="">My Account</a></li>
+              <li><a href="">Log Out</a></li>
+            </ul>
+          </div>          
+        </li>
+
+      </ul>
+    </nav>
+  </header>
+  <hero class="grid bg-gray-700 text-white text-center bg-cover z-10 relative bg-center bg-[url('http://127.0.0.1:5501/icons/fresh-lime-drinks-macro-shot.jpg')]">
+    <div class="col-start-1 row-start-1 bg-gray-800 opacity-40 w-full h-full z-[-1]"></div>
+    <div class="col-start-1 row-start-1 py-24 px-10">
+      <h2 class="!text-lg !font-semibold">Pre-Order prodcuts</h2>
+      <p>Below you can pre-order products that are not in stock</p>
+    </div>
+  </hero>
+  <content class="grid grid-cols-3 max-w-7xl mt-5 mx-auto">
+    <main class="card mx-[5%] md:mr-[5%] col-span-full md:col-span-2 p-5">
+      <section id="products-container" class="[&>div]:mb-4">
+        <!-- <div class="product-card gap-5 md:gap-2">
+          <figure>
+            <img class="max-h-35 md:max-h-30" src="./icons/JuiceTrybe.png" alt="">
+          </figure>
+          <div class="flex flex-col md:flex-row items-top gap-2 md:gap-5 [&>div>h2]:!text-sm [&>div>h2]:!font-semibold">
+            <div>
+              <h2>Mocha</h2>
+              <span class="text-sm hidden md:inline ">Options: 2sizes</span>
+              <h2>$10</h2>              
+            </div>
+            <div>
+              <h2>Size</h2>
+              <select class="shadow-md text-sm rounded-md max-w-15 cursor-pointer" name="size" id="size">
+                <option value="">25cl</option>
+                <option value="">50cl</option>
+              </select>
+            </div>            
+            <div class="">
+              <h2>Qty</h2>
+              <input placeholder="0" class="shadow-md text-sm rounded-md max-w-15 px-2" type="number">
+            </div>
+          </div>
+          <div id="button-id">
+            <a class="button !text-xs md:!text-sm">Add to Cart</a>
+          </div>
+        </div>
+        <div class="product-card gap-5 md:gap-2">
+          <figure>
+            <img class="max-h-35 md:max-h-30" src="./icons/JuiceTrybe.png" alt="">
+          </figure>
+          <div class="flex flex-col md:flex-row items-top gap-2 md:gap-5 [&>div>h2]:!text-sm [&>div>h2]:!font-semibold">
+            <div>
+              <h2>Mocha</h2>
+              <span class="text-sm hidden md:inline ">Options: 2sizes</span>
+              <h2>$10</h2>              
+            </div>
+            <div>
+              <h2>Size</h2>
+              <select class="shadow-md text-sm rounded-md max-w-15 cursor-pointer" name="size" id="size">
+                <option value="">25cl</option>
+                <option value="">50cl</option>
+              </select>
+            </div>            
+            <div class="">
+              <h2>Qty</h2>
+              <input placeholder="0" class="shadow-md text-sm rounded-md max-w-15 px-2" type="number">
+            </div>
+          </div>
+          <div>
+            <a class="button !text-xs md:!text-sm">Add to Cart</a>
+          </div>
+        </div> -->
+      </section>
+    </main>
+    <aside class="card col-span-full h-fit md:col-span-1 mx-[5%] md:mx-0 pt-4 px-2">
+      <h2 class="!text-lg">Shopping Cart</h2>
+      <section class="p-4 shadow-md rounded-lg">
+        <ul id="cart-container" class="empty receipt-card [&>li]:grid [&>li]:grid-cols-5">
+          <!-- <li x-data="{hovered:false}"
+            @mouseenter="hovered = true"
+            @mouseleave="hovered = false" 
+          >
+            <span class="col-span-2">Hint of Coffee</span>
+            <span>50 cl</span>               
+            <div class="">
+              <span>5</span>
+              <img class="h-5 cursor-pointer" src="https://img.icons8.com/small/64/plus.png" alt="add"/>
+              <img class="h-5 cursor-pointer" src="https://img.icons8.com/small/64/minus.png" alt="minus"/>
+            </div>
+            <div>
+              <span>$1500</span>
+              <img x-show="hovered" class="h-5 cursor-pointer" src="https://img.icons8.com/small/64/delete.png" alt="delete"/>
+            </div>            
+          </li>
+          <li x-data="{hovered:false}"
+            @mouseenter="hovered = true"
+            @mouseleave="hovered = false"
+          >
+            <span class="col-span-2">Creamy</span>
+            <span>35 cl</span>
+            <div class="">
+              <span>5</span>
+              <img class="h-5 cursor-pointer" src="https://img.icons8.com/small/64/plus.png" alt="add"/>
+              <img class="h-5 cursor-pointer" src="https://img.icons8.com/small/64/minus.png" alt="minus"/>
+            </div>    
+            <div>
+              <span>$1500</span>
+              <img x-show="hovered" class="h-5 cursor-pointer" src="https://img.icons8.com/small/64/delete.png" alt="delete"/>
+            </div>        
+            
+          </li>
+          <li x-data="{hovered:false}"
+            @mouseenter="hovered = true"
+            @mouseleave="hovered = false"
+          >
+            <span class="col-span-2">Mocha</span>
+            <span>50 cl</span>
+            <div class="">
+              <span>5</span>
+              <img class="h-5 cursor-pointer" src="https://img.icons8.com/small/64/plus.png" alt="add"/>
+              <img class="h-5 cursor-pointer" src="https://img.icons8.com/small/64/minus.png" alt="minus"/>
+            </div>   
+            <div>
+              <span>$1500</span>
+              <img x-show="hovered" class="h-5 cursor-pointer" src="https://img.icons8.com/small/64/delete.png" alt="delete"/>
+            </div>         
+          </li> -->
+          <span>Cart is empty</span>
+        </ul>
+      </section>
+      <section x-data="{discount:false}" class="p-4 mt-4">
+        <div id="order-total" class="text-lg flex justify-between align-items">
+          <span>Cart Total (<span>0</span>):</span>
+          <span x-bind:class="discount ? 'line-through text-md text-gray-300' : ''">$0</span><span x-show="discount">$0</span>
+        </div>
+        <span x-show="discount" class="text-teal-700 text-sm'">10% discount applied</span>
+      </section>
+      <a id="checkout" class="button">Checkout</a>
+    </aside>
+  </content>
+  <footer class="grid grid-cols-4 bg-gray-300 items-center mb-0 gap-8 md:gap-0 p-10 text-black h-full w-screen">
+    <social class="col-span-full md:col-span-1">
+      <h2 class="!text-2xl font-bold mb-1">The JuiceTrybe</h2>
+      <div class="text-sm font2">
+        <ul class="flex gap-2 [&>li>a]:flex [&>li>a]:w-fit [&>li>a]:rounded-full [&>li>a]:items-center [&>li>a]:bg-white [&>li>a]:p-2">
+          <li><a class="" href="">
+            <img class="h-5" src="https://img.icons8.com/tiny-bold/64/instagram-new.png" alt="instagram-new"/>
+          </a></li>
+          <li><a class="" href="">
+            <img class="h-5" src="https://img.icons8.com/small/64/facebook-new.png" alt="facebook-new"/>
+          </a></li>
+          <li><a href="">
+            <img class="h-5" src="https://img.icons8.com/small/64/twitterx.png" alt="twitterx"/>
+          </a></li>
+        </ul>
+      </div>
+    </social>
+    <nav class="font2 text-md md:text-sm col-span-full md:col-span-2">
+      <ul x-data="{footerdropDownOpen: false}" class="flex gap-5 justify-center [&>li>a]:p-4 [&>li>a:hover]:bg-gray-200 [&>li>a:hover]:rounded-lg [&>li>a]:duration-150 [&>li>a:hover]:cursor-pointer">
+        <li @click="footerdropDownOpen= !footerdropDownOpen" @click.away="footerdropDownOpen=false" class="w-fit md:w-auto">
+          <a class="flex md:inline gap-1 justify-center items-center">
+            <span>Home</span>
+            <img class="md:hidden h-4" src="https://img.icons8.com/small/16/777777/expand-arrow.png"
+            x-bind:class="footerdropDownOpen ? 'rotate-180 duration-300' : ''"
+            alt="">
+            <div x-show="footerdropDownOpen" class="absolute right-40 bg-gray-300 shadow-lg text-black rounded-lg w-40 p-2 z-20"
+            x-transition:enter="duration-300 ease-out"
+            x-transition:enter-start="opacity-0 -translate-y-6"
+            x-transition:enter-end="opacity-100 translate-y-0"
+            >
+              <ul class="[&>li:hover]:rounded-md [&>li:hover]:bg-gray-200 [&>li>a]:p-2 [&>li>a]:flex [&>li>a]:justify-center">
+                <li><a href="">Pre Order</a></li>
+                <li><a href="">About</a></li>
+                <li><a href="">Contact Us</a></li>
+              </ul>
+            </div>
+          </a></li>
+        <li class="hidden md:block">
+          <a href="">Pre Order</a></li>
+        <li class="hidden md:block">
+          <a href="">About</a></li>
+        <li class="hidden md:block">
+          <a href="">Contact Us</a></li>
+      </ul>
+    </nav>
+    <newsletter class="col-span-full md:col-span-1">
+      <h2>Get Notifications on restock</h2>
+      <div class="flex gap-1 items-center text-sm mt-4">
+        <input class="p-4 max-h-8 w-full outline" type="text" placeholder="email">
+        <a class="bg-black text-white flex items-center justify-center p-2 hover:bg-white hover:text-black duration-300 cursor-pointer rounded-sm hover:border">Submit</a>
+      </div>
+    </newsletter>
+  </footer>
+  <section class="flex items-center justify-center bg-gray-200 h-6 w-full text-xs">&copy;2025 The JuiceTrybe</section>
+
+  <script src="./static/js/common.js"></script>
+  <script src="./static/js/pre-order.js"></script>
+</body>
+</html>
