@@ -9,7 +9,7 @@
   <link rel="icon" href="./icons/tjt_logo_circle.png">
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.15.0/dist/cdn.min.js"></script>
-  <title>TheJuicetrybe</title>
+  <title>Checkout</title>
 
   <style type="text/tailwindcss">
     :root{
@@ -44,9 +44,27 @@
       border-radius: 1rem;
       box-shadow: 0 10px 15px -3px rgba(0, 0, 0, .1);
       margin-bottom: 2rem;
-      background-color: rgb(248, 247, 247);
+      background-color: white;
       padding-bottom: 1rem;
     }
+
+    h2{
+      font-family: var(--font1);
+      font-size: 1rem;
+    }
+
+    .product-card>product {
+      @apply shadow-lg hover:shadow-none duration-300
+    }
+
+    .product-card>*>div{
+      @apply flex flex-col p-2
+    }
+
+    .product-card>*>*>span{
+      @apply text-xs md:text-sm text-teal-700
+    }
+
     .button{
       display: inline-flex;
       flex-wrap: wrap;
@@ -55,12 +73,12 @@
       text-align: center;
       border-radius: .5rem;
       cursor: pointer;
-      padding: 0 .8rem;
-      min-height: 3rem;
+      padding: 0 1rem;
+      min-height: 3.3rem;
       font-weight: 600;
       box-shadow: 0 4px 3px rgba(0, 0, 0, .1);
       transition-property: transform;
-      transition:all .1s ease;
+      transition-duration: .5s;
       color: white;
       background-color: var(--primary-color);
     }
@@ -68,30 +86,12 @@
     .button:hover{
       background-color: var(--primary-hover);
     }
-    .product-card{
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      border-radius: .5rem;
-      align-items: center;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, .1);
-      background-color: white;
-      padding: 1rem;
-      transition: all .3s ease-in;
-    }
-
-    .product-card:hover{
-      box-shadow: none;
-    }
-
-    h2{
-      font-family: var(--font1);
-      font-size: 1rem;
-    }
 
     .receipt-card>*>div{
       @apply flex col-span-1 gap-1 items-center
     }
   </style>
+
 </head>
 <body class="bg-gray-100 font1 relative">
   <header x-data="{ mobilenavMenu : false}" class="text-white md:flex justify-between w-screen items-center sticky top-0 z-50 [&>*]:px-8 pt-2">
@@ -119,7 +119,7 @@
         <li>
           <a href="index.html">Home</a></li>
         <li>
-          <a href="">Pre-Order</a></li>
+          <a href="pre-order.html">Pre-Order</a></li>
         <li>
           <a href="">About</a></li>
         <li>
@@ -130,7 +130,7 @@
             { items:0 ,
             
               init(){
-                if (localStorage.getItem('cart-total')){
+                if (JSON.parse(localStorage.getItem('cart-total')).items){
                   this.items = JSON.parse(localStorage.getItem('cart-total')).items
                 }
               }
@@ -161,122 +161,57 @@
   <hero class="grid bg-gray-700 text-white text-center bg-cover z-10 relative bg-center bg-[url('http://127.0.0.1:5501/icons/fresh-lime-drinks-macro-shot.jpg')]">
     <div class="col-start-1 row-start-1 bg-gray-800 opacity-40 w-full h-full z-[-1]"></div>
     <div class="col-start-1 row-start-1 py-24 px-10">
-      <h2 class="!text-lg !font-semibold">Pre-Order prodcuts</h2>
-      <p>Below you can pre-order products that are not in stock</p>
+      <h2 class="!text-lg !font-semibold">Checkout</h2>
+      <p>complete checkout so you do not miss out on the experience</p>
     </div>
-  </hero>
-  <content class="grid grid-cols-3 max-w-7xl mt-5 mx-auto">
-    <main class="card mx-[5%] md:mr-[5%] col-span-full md:col-span-2 p-5">
-      <section id="products-container" class="[&>div]:mb-4">
-      </section>
+  </hero> 
+  <content class="grid grid-cols-3 max-w-7xl mt-5 mx-auto text-black">
+    <main class="card col-span-full md:col-span-2 bg-red-700 mx-[5%] md:mx-auto md:mr-[5%] p-4">
+      <section></section>
+      <section></section>
     </main>
     <aside class="card col-span-full h-fit md:col-span-1 mx-[5%] md:mx-0 pt-4 px-2">
-      <h2 class="!text-lg">Pre-Order Cart</h2>
-      <section class="p-4 shadow-md rounded-lg"
-        x-data="{ cart:'Cart is empty', empty:true,   
+      <h2 class="!text-lg font-semibold">Order Summary</h2>
+      <section class="p-4 shadow-md rounded-lg">
+        <ul id="cart-container" class="empty receipt-card [&>li]:grid [&>li]:grid-cols-5" x-data="{ cart:JSON.parse(localStorage.getItem('cart')) ,
+        
           init(){
-            console.log(this.empty)
-            if (localStorage.getItem('preOrderCart')){
+            if (localStorage.getItem('page') == 'pre-order'){
               this.cart = JSON.parse(localStorage.getItem('preOrderCart'))
-              this.empty = false
             }
           }
-        }"      
-      >
-        <ul class="empty receipt-card [&>li]:grid [&>li]:grid-cols-5">
-          <span x-show="empty">Cart is empty</span>
-          <!-- <li x-data="{hovered:false}"
-            @mouseenter="hovered = true"
-            @mouseleave="hovered = false" 
-          >
-            <span class="col-span-2">Hint of Coffee</span>
-            <span>50 cl</span>               
-            <div class="">
-              <span>5</span>
-              <img class="h-5 cursor-pointer" src="https://img.icons8.com/small/64/plus.png" alt="add"/>
-              <img class="h-5 cursor-pointer" src="https://img.icons8.com/small/64/minus.png" alt="minus"/>
-            </div>
-            <div>
-              <span>$1500</span>
-              <img x-show="hovered" class="h-5 cursor-pointer" src="https://img.icons8.com/small/64/delete.png" alt="delete"/>
-            </div>            
-          </li>
-          <li x-data="{hovered:false}"
-            @mouseenter="hovered = true"
-            @mouseleave="hovered = false"
-          >
-            <span class="col-span-2">Creamy</span>
-            <span>35 cl</span>
-            <div class="">
-              <span>5</span>
-              <img class="h-5 cursor-pointer" src="https://img.icons8.com/small/64/plus.png" alt="add"/>
-              <img class="h-5 cursor-pointer" src="https://img.icons8.com/small/64/minus.png" alt="minus"/>
-            </div>    
-            <div>
-              <span>$1500</span>
-              <img x-show="hovered" class="h-5 cursor-pointer" src="https://img.icons8.com/small/64/delete.png" alt="delete"/>
-            </div>        
-            
-          </li>
-          <li x-data="{hovered:false}"
-            @mouseenter="hovered = true"
-            @mouseleave="hovered = false"
-          >
-            <span class="col-span-2">Mocha</span>
-            <span>50 cl</span>
-            <div class="">
-              <span>5</span>
-              <img class="h-5 cursor-pointer" src="https://img.icons8.com/small/64/plus.png" alt="add"/>
-              <img class="h-5 cursor-pointer" src="https://img.icons8.com/small/64/minus.png" alt="minus"/>
-            </div>   
-            <div>
-              <span>$1500</span>
-              <img x-show="hovered" class="h-5 cursor-pointer" src="https://img.icons8.com/small/64/delete.png" alt="delete"/>
-            </div>         
-          </li> -->
-          <template x-if="cart!='Cart is empty'">
-            <template  x-for="(value,index) in cart">
-              <li x-bind:data-id="value.originId" x-bind:data-size="value.size" x-data="{hovered:false}"
-                @mouseenter="hovered = true"
-                @mouseleave="hovered = false" 
-              >
-                <span class="col-span-2 truncate"x-text="value.name"></span>
-                <span x-text="value.size"></span>               
-                <div class="">
-                  <span x-text="value.quantity">${quantity}</span>
-                  <img data-action="add" class="h-5 cursor-pointer" src="https://img.icons8.com/small/64/plus.png" alt="add"/>
-                  <img data-action="minus" class="h-5 cursor-pointer" src="https://img.icons8.com/small/64/minus.png" alt="minus"/>
-                </div>
-                <div>
-                  <span x-text="'$' + Number(value.quantity)*Number(value.price)"></span>
-                  <img onclick='deleteItem(this)' x-show="hovered" class="h-5 cursor-pointer" src="https://img.icons8.com/small/64/delete.png" alt="delete"/>
-                </div>             
-              </li>         
-            </template>
-          </template>
+        }">
+        <template x-for="(value,index) in cart">
+          <li>
+            <span class="col-span-2 truncate" x-text="value.name"></span>
+            <span x-text="value.size"></span>
+            <span x-text="value.quantity"></span>
+            <span x-text="'$' + value.price"></span>
+          </li>          
+        </template>
         </ul>
-        <ul id="cart-container" class="empty receipt-card [&>li]:grid [&>li]:grid-cols-5"></ul>
       </section>
-      <section x-data="{discount:false}" class="p-4 mt-4">
-        <div id="order-total" class="text-lg flex justify-between align-items"
-        x-data="
-          { cost:0 , items:0,
-          
-            init(){
-              if (localStorage.getItem('pcart-total')){
-                this.items = JSON.parse(localStorage.getItem('pcart-total')).items
 
-                this.cost = JSON.parse(localStorage.getItem('pcart-total')).cost
+      <section class="p-4 mt-4">
+        <div class="text-lg flex justify-between align-items"  x-data="
+            { cost:0 , items:0,
+            
+              init(){
+                if (localStorage.getItem('page') == 'pre-order'){
+                  var info = JSON.parse(localStorage.getItem('pcart-total'))
+                }else{
+                  var info = JSON.parse(localStorage.getItem('cart-total'))                  
+                }
+
+                this.items = info.items
+                this.cost = info.cost
+          
               }
-            }
-          }"        
-        >
-          <span>Cart Total (<span x-text="items">0</span>):</span>
-          <span x-bind:class="discount ? 'line-through text-md text-gray-300' : ''" x-text="'$' + cost "></span><span x-show="discount">$0</span>
+            }">
+          <span>Order Total (<span x-text="items">0</span>):</span>
+          <span x-text="'$' + cost"></span>
         </div>
-        <span x-show="discount" class="text-teal-700 text-sm'">10% discount applied</span>
       </section>
-      <a href="checkout.html" id="checkout" class="button !hidden">Checkout</a>
     </aside>
   </content>
   <footer class="grid grid-cols-4 bg-gray-300 items-center mb-0 gap-8 md:gap-0 p-10 text-black h-full w-screen">
@@ -310,7 +245,7 @@
             x-transition:enter-end="opacity-100 translate-y-0"
             >
               <ul class="[&>li:hover]:rounded-md [&>li:hover]:bg-gray-200 [&>li>a]:p-2 [&>li>a]:flex [&>li>a]:justify-center">
-                <li><a href="">Pre Order</a></li>
+                <li><a href="pre-order.html">Pre Order</a></li>
                 <li><a href="">About</a></li>
                 <li><a href="">Contact Us</a></li>
               </ul>
@@ -333,8 +268,5 @@
     </newsletter>
   </footer>
   <section class="flex items-center justify-center bg-gray-200 h-6 w-full text-xs">&copy;2025 The JuiceTrybe</section>
-
-  <script src="./static/js/common.js"></script>
-  <script src="./static/js/pre-order.js"></script>
 </body>
 </html>

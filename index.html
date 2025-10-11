@@ -123,9 +123,20 @@
         <li>
           <a href="">About</a></li>
         <li>
-          <a class="flex gap-1 items-center">
+          <a class="flex gap-1 items-center relative">
             <span>Cart</span>
             <img class="h-6" src="https://img.icons8.com/tiny-glyph/64/ffffff/shopping-cart.png" alt="shopping-cart"/>
+            <div id="cart-count" class="flex items-center justify-center absolute w-6 h-6 rounded-full bg-red-700 text-white top-1 right-1" x-data="
+            { items:0 ,
+            
+              init(){
+                if (localStorage.getItem('cart-total')){
+                  this.items = JSON.parse(localStorage.getItem('cart-total')).items
+                }
+              }
+            }
+            " x-text="items">
+            </div>
           </a></li>
         <li x-data="{ dropdownOpen: false}" class="relative">
           <a @click="dropdownOpen = !dropdownOpen" @click.away="dropdownOpen = false" class="flex items-center gap-2">
@@ -174,19 +185,65 @@
     </main>
     <aside class="card col-span-full h-fit md:col-span-1 mx-[5%] md:mx-0 pt-4 px-2">
       <h2 class="!text-lg">Shopping Cart</h2>
-      <section class="p-4 shadow-md rounded-lg">
-        <ul id="cart-container" class="empty receipt-card [&>li]:grid [&>li]:grid-cols-5">
-          <span>Cart is empty</span>
+      <section class="p-4 shadow-md rounded-lg"
+        x-data="{ cart:'Cart is empty', empty:true,   
+          init(){
+            console.log(this.empty)
+            if (localStorage.getItem('cart')){
+              this.cart = JSON.parse(localStorage.getItem('cart'))
+              this.empty = false
+            }
+          }
+        }"     
+      >
+        
+        <ul class="receipt-card [&>li]:grid [&>li]:grid-cols-5"  
+          >        
+          <span x-show="empty">Cart is empty</span>    
+          <template x-if="cart!='Cart is empty'">
+            <template  x-for="(value,index) in cart">
+              <li x-bind:data-id="value.originId" x-bind:data-size="value.size" x-data="{hovered:false}"
+                @mouseenter="hovered = true"
+                @mouseleave="hovered = false" 
+              >
+                <span class="col-span-2 truncate"x-text="value.name"></span>
+                <span x-text="value.size"></span>               
+                <div class="">
+                  <span x-text="value.quantity">${quantity}</span>
+                  <img data-action="add" class="h-5 cursor-pointer" src="https://img.icons8.com/small/64/plus.png" alt="add"/>
+                  <img data-action="minus" class="h-5 cursor-pointer" src="https://img.icons8.com/small/64/minus.png" alt="minus"/>
+                </div>
+                <div>
+                  <span x-text="'$' + Number(value.quantity)*Number(value.price)"></span>
+                  <img onclick='deleteItem(this)' x-show="hovered" class="h-5 cursor-pointer" src="https://img.icons8.com/small/64/delete.png" alt="delete"/>
+                </div>             
+              </li>         
+            </template>
+          </template>
+
         </ul>
+        <ul id="cart-container" class="receipt-card [&>li]:grid [&>li]:grid-cols-5"></ul>
       </section>
       <section x-data="{discount:false}" class="p-4 mt-4">
-        <div id="order-total" class="text-lg flex justify-between align-items">
-          <span>Cart Total (<span>0</span>):</span>
-          <span x-bind:class="discount ? 'line-through text-md text-gray-300' : ''">$0</span><span x-show="discount">$0</span>
+        <div id="order-total" class="text-lg flex justify-between align-items"
+        x-data="
+          { cost:0 , items:0,
+          
+            init(){
+              if (localStorage.getItem('cart-total')){
+                this.items = JSON.parse(localStorage.getItem('cart-total')).items
+
+                this.cost = JSON.parse(localStorage.getItem('cart-total')).cost
+              }
+            }
+          }"
+        >
+          <span>Cart Total (<span x-text="items">0</span>):</span>
+          <span x-bind:class="discount ? 'line-through text-md text-gray-300' : ''" x-text="'$' + cost "></span><span x-show="discount">$0</span>
         </div>
         <span x-show="discount" class="text-teal-700 text-sm'">10% discount applied</span>
       </section>
-      <a id="checkout" class="button">Checkout</a>
+      <a href="checkout.html" id="checkout" class="button">Checkout</a>
     </aside>
   </content>
 
