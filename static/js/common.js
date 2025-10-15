@@ -1,26 +1,42 @@
-const products = {
-  "0": {
-    "name":"Cafe Mocha",
-    "id":{"25cl":"0", "50cl":"1"},
-    "stock":{"25cl":"20", "50cl":"0"},
-    "price":{"25cl":"10", "50cl":"30"},
-    "month_sale":{"25cl":"100", "50cl":"300"}
-  },
-  "1": {
-    "name":"Hint Of Coffee",
-    "id":{"25cl":"0", "50cl":"1"},
-    "stock":{"25cl":"20", "50cl":"20"},
-    "price":{"25cl":"10", "50cl":"30"},
-    "month_sale":{"25cl":"100", "50cl":"300"}
-  },
-  "2": {
-    "name":"Creamy",
-    "id":{"25cl":"0", "50cl":"1"},
-    "stock":{"25cl":"20", "50cl":"20"},
-    "price":{"25cl":"10", "50cl":"30"},
-    "month_sale":{"25cl":"100", "50cl":"300"}
-  },
-}
+// get products from api
+
+const customProductList = (adminProducts)=>{
+  // customize products list
+  var products = {}
+
+    for (let key in adminProducts){
+      const item = adminProducts[key]
+      console.log(item)
+      // get product name without the size
+      var words = item.name.split(' ')
+      var name = '';
+      for (let i = 0; i < words.length-1; i++){
+        name = name+ ' ' + words[i]
+      } 
+      name = name.trimStart()
+
+      // check if product already exists in reProducts
+      for (let sub_key in products){
+        const sub_item = products[sub_key]
+        if (sub_item){
+          const pname = String(item.name)
+          const subname = String(sub_item.name)
+          if (pname.includes(subname)){
+            sub_item.price["50cl"] = item.price
+            sub_item.stock["50cl"] = item.stock
+            sub_item.month_sale["50cl"] = item.total_sold
+            var subSize = true
+          }
+        }
+      }
+      if (subSize){
+        
+      }else{
+        products[`${key}`] = {"name":name, "price":{"25cl":item.price, "50cl": 0}, "stock":{"25cl":item.stock, "50cl": 0}, "month_sale":{"25cl":item.total_sold, "50cl": 0}, "id":{"25cl":0, "50cl":1}}
+      }
+    }
+    return products
+  }
 
 const productsContainer= document.getElementById("products-container")
 

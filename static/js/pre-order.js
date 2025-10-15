@@ -1,4 +1,3 @@
-
 // objects for storing items in pre-order cart and create a dict for totals
 if (JSON.parse(localStorage.getItem('preOrderCart'))){
   var preOrderList = JSON.parse(localStorage.getItem('preOrderCart'))
@@ -10,39 +9,45 @@ if (JSON.parse(localStorage.getItem('preOrderCart'))){
 
 }
 
+// get products from server 
+const data = await fetch('http://localhost:8000/client-api/products/').then(res => res.json())
+var adminProducts = data;
+var products = customProductList(adminProducts)
+console.log('order')
+
 for (let key in products){
-  const product = products[key]
-  productsContainer.innerHTML += `
-      <div data-origin-key=${key} 
-        x-data="{large:false, toggle() {this.large = !this.large}}" x-bind:data-id="large ? ${product.id["50cl"]} : ${product.id["25cl"]}"        
-          class="product-card gap-5 md:gap-2">
-            <figure>
-              <img class="max-h-35 md:max-h-30" src="./icons/JuiceTrybe.png" alt="">
-            </figure>
-            <div class="flex flex-col md:flex-row items-top gap-2 md:gap-5 [&>div>h2]:!text-sm [&>div>h2]:!font-semibold">
-              <div>
-                <h2>${product.name}</h2>
-                <span class="text-sm hidden md:inline ">Options: 2sizes</span>
-                <h2 x-show="!large">$${product.price['25cl']}</h2>
-                <h2 x-show="large">$${product.price['50cl']}</h2>           
-              </div>
-              <div>
-                <h2>Size</h2>
-                <select @change="toggle" class="shadow-md text-sm rounded-md max-w-15 cursor-pointer" name="size" id="size">
-                  <option value="25cl">25cl</option>
-                  <option value="50cl">50cl</option>
-                </select>
-              </div>            
-              <div class="">
-                <h2>Qty</h2>
-                <input placeholder="0" class="shadow-md text-sm rounded-md max-w-15 px-2" type="number">
-              </div>
+const product = products[key]
+productsContainer.innerHTML += `
+    <div data-origin-key=${key} 
+      x-data="{large:false, toggle() {this.large = !this.large}}" x-bind:data-id="large ? ${product.id["50cl"]} : ${product.id["25cl"]}"        
+        class="product-card gap-5 md:gap-2">
+          <figure>
+            <img class="max-h-35 md:max-h-30" src="./icons/JuiceTrybe.png" alt="">
+          </figure>
+          <div class="flex flex-col md:flex-row items-top gap-2 md:gap-5 [&>div>h2]:!text-sm [&>div>h2]:!font-semibold">
+            <div>
+              <h2>${product.name}</h2>
+              <span class="text-sm hidden md:inline ">Options: 2sizes</span>
+              <h2 x-show="!large">₦${product.price['25cl']}</h2>
+              <h2 x-show="large">₦${product.price['50cl']}</h2>           
             </div>
-            <div x-bind:data-size-id="large ? '50cl' : '25cl'" data-button-id=${key}>
-              <a class="button !text-xs md:!text-sm">Add to Cart</a>
+            <div>
+              <h2>Size</h2>
+              <select @change="toggle" class="shadow-md text-sm rounded-md max-w-15 cursor-pointer" name="size" id="size">
+                <option value="25cl">25cl</option>
+                <option value="50cl">50cl</option>
+              </select>
+            </div>            
+            <div class="">
+              <h2>Qty</h2>
+              <input placeholder="0" class="shadow-md text-sm rounded-md max-w-15 px-2" type="number">
             </div>
           </div>
-  `  
+          <div x-bind:data-size-id="large ? '50cl' : '25cl'" data-button-id=${key}>
+            <a class="button !text-xs md:!text-sm">Add to Cart</a>
+          </div>
+        </div>
+`  
 }
 
 // get all the buttons
@@ -102,8 +107,8 @@ const toCart = (originId,name, size, quantity,id,price)=>{
                 <img data-action="minus" class="h-5 cursor-pointer" src="https://img.icons8.com/small/64/minus.png" alt="minus"/>
               </div>
               <div>
-                <span>$${Number(quantity)*Number(price)}</span>
-                <img onclick='deleteItem(this)' x-show="hovered" class="h-5 cursor-pointer" src="https://img.icons8.com/small/64/delete.png" alt="delete"/>
+                <span>₦${Number(quantity)*Number(price)}</span>
+                <img id="delete-btn" x-show="hovered" class="h-5 cursor-pointer" src="https://img.icons8.com/small/64/delete.png" alt="delete"/>
               </div>             
             </li>
     `    
@@ -121,25 +126,24 @@ const Cart = (originId,name, size, quantity, id, price)=>{
   localStorage.setItem('pcart-total', JSON.stringify(preOrderTotals))
 }
 
-// add event listener to delete button
-const deleteItem = (btn)=>{
-  const item = btn.parentElement.parentElement
-  const id = item.dataset.id
-  const size = item.dataset.size
-  item.remove()
-  delete preOrderList[`${id}-${size}`]
-
-  // check if cart is empty
-  if (Object.keys(preOrderList).length == 0){
-    localStorage.removeItem('preOrderCart');
-    localStorage.removeItem('pcart-total');
-    // change the alpine data empty to true
-    Alpine.$data(cartContainer.parentElement).empty = true
-
-    // make checkout btn hidden
-    checkoutBtn.classList.add('!hidden')
+// create function to update order items total and total
+const orderTotal = document.getElementById('order-total')
+const updateOrder = ()=>{
+  let itemTotalValue = 0;
+  let costTotalValue = 0;
+  for (let key in preOrderList){
+    const item = preOrderList[key]
+    let quantity = Number(item.quantity)
+    let price= Number(item.price)
+    let total = quantity * price
+    itemTotalValue+=quantity
+    costTotalValue+=total
   }
-  updateOrder()
+  orderTotal.querySelector('span:nth-child(2)').innerHTML = `₦${costTotalValue}`
+  orderTotal.querySelector('span:first-child span').innerHTML = itemTotalValue
+  preOrderTotals.cost = costTotalValue
+  preOrderTotals.items = itemTotalValue
+  // localStorage.setItem('cart', cartList)
 }
 
 const updateItem = ()=>{
@@ -176,41 +180,48 @@ const updateItem = ()=>{
   })
 }
 
-// create function to update order items total and total
-const orderTotal = document.getElementById('order-total')
-const updateOrder = ()=>{
-  let itemTotalValue = 0;
-  let costTotalValue = 0;
-  for (let key in preOrderList){
-    const item = preOrderList[key]
-    let quantity = Number(item.quantity)
-    let price= Number(item.price)
-    let total = quantity * price
-    itemTotalValue+=quantity
-    costTotalValue+=total
-  }
-  orderTotal.querySelector('span:nth-child(2)').innerHTML = `$${costTotalValue}`
-  orderTotal.querySelector('span:first-child span').innerHTML = itemTotalValue
-  preOrderTotals.cost = costTotalValue
-  preOrderTotals.items = itemTotalValue
-  // localStorage.setItem('cart', cartList)
-}
-
 // function for calculating the total price per product
 const updateTotal = (quantity, price, item)=>{
   // let quantity = Number(quantity)
   price = Number(price)
   let total = quantity * price
   const totalSpan = item.querySelector('div:last-child span')
-  totalSpan.innerHTML = `$${total}`
+  totalSpan.innerHTML = `₦${total}`
   price = ''
   updateOrder()
 }
 
-window.onload = () => {
-  updateItem()
+// add event listener to delete button
+const deleteItem = (btn)=>{
+  const item = btn.parentElement.parentElement
+  const id = item.dataset.id
+  const size = item.dataset.size
+  item.remove()
+  delete preOrderList[`${id}-${size}`]
+
+  // check if cart is empty
+  if (Object.keys(preOrderList).length == 0){
+    localStorage.removeItem('preOrderCart');
+    localStorage.removeItem('pcart-total');
+    // change the alpine data empty to true
+    Alpine.$data(cartContainer.parentElement).empty = true
+
+    // make checkout btn hidden
+    checkoutBtn.classList.add('!hidden')
+  }
+  updateOrder()
 }
 
+// implement event listener for delete function and update item function on page load
+updateItem()
+
+try{
+  document.querySelectorAll("aside #delete-btn").forEach((btn)=>{
+    btn.addEventListener('click', ()=>{
+      deleteItem(btn)
+    })
+  })
+}catch(err){}
 
 // add event listener to checkout btn
 checkoutBtn.addEventListener('click', (e)=>{

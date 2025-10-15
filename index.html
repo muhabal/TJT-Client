@@ -214,8 +214,8 @@
                   <img data-action="minus" class="h-5 cursor-pointer" src="https://img.icons8.com/small/64/minus.png" alt="minus"/>
                 </div>
                 <div>
-                  <span x-text="'$' + Number(value.quantity)*Number(value.price)"></span>
-                  <img onclick='deleteItem(this)' x-show="hovered" class="h-5 cursor-pointer" src="https://img.icons8.com/small/64/delete.png" alt="delete"/>
+                  <span x-text="'₦' + Number(value.quantity)*Number(value.price)"></span>
+                  <img id="delete-btn" x-show="hovered" class="h-5 cursor-pointer" src="https://img.icons8.com/small/64/delete.png" alt="delete"/>
                 </div>             
               </li>         
             </template>
@@ -239,7 +239,7 @@
           }"
         >
           <span>Cart Total (<span x-text="items">0</span>):</span>
-          <span x-bind:class="discount ? 'line-through text-md text-gray-300' : ''" x-text="'$' + cost "></span><span x-show="discount">$0</span>
+          <span x-bind:class="discount ? 'line-through text-md text-gray-300' : ''" x-text="'₦' + cost "></span><span x-show="discount">₦0</span>
         </div>
         <span x-show="discount" class="text-teal-700 text-sm'">10% discount applied</span>
       </section>
@@ -302,6 +302,6 @@
   </footer>
   <section class="flex items-center justify-center bg-gray-200 h-6 w-full text-xs">&copy;2025 The JuiceTrybe</section>
   <script src="static/js/common.js"></script>
-  <script src="static/js/index.js"></script>
+  <script type="module" src="static/js/index.js"></script>
 </body>
 </html>
