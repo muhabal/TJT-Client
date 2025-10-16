@@ -1,13 +1,19 @@
+const checkoutBtn = document.getElementById('checkout')
+
 // objects for storing items in pre-order cart and create a dict for totals
-if (JSON.parse(localStorage.getItem('preOrderCart'))){
-  var preOrderList = JSON.parse(localStorage.getItem('preOrderCart'))
-  var preOrderTotals = JSON.parse(localStorage.getItem('pcart-total'))
-  checkoutBtn.classList.remove('!hidden')
-}else{
-  var preOrderList = {}
-  var preOrderTotals = {}
+try{
+  if (JSON.parse(localStorage.getItem('preOrderCart'))){
+    var preOrderList = JSON.parse(localStorage.getItem('preOrderCart'))
+    var preOrderTotals = JSON.parse(localStorage.getItem('pcart-total'))
+    checkoutBtn.classList.remove('!hidden')
+  }else{
+    var preOrderList = {}
+    var preOrderTotals = {}
+  }
+}catch(err){
 
 }
+
 
 // get products from server 
 const data = await fetch('http://localhost:8000/client-api/products/').then(res => res.json())
@@ -113,12 +119,14 @@ const toCart = (originId,name, size, quantity,id,price)=>{
             </li>
     `    
     Cart(originId,name,size, quantity, id, price)
+    deleteEvent()
   }
 }
 
 // create funtion to add products to pre-order cart
 const Cart = (originId,name, size, quantity, id, price)=>{
-  preOrderList[`${originId}-${size}`] = {"name":name, "size": size, "quantity":quantity, "price":price, "id":id, "originId":originId}
+  var total = Number(price) * Number(quantity)
+  preOrderList[`${originId}-${size}`] = {"name":name, "size": size, "quantity":quantity, "price":price, "id":id, "originId":originId, "total":total}
   updateOrder()
   updateItem()
   //save list in local storage
@@ -208,26 +216,52 @@ const deleteItem = (btn)=>{
 
     // make checkout btn hidden
     checkoutBtn.classList.add('!hidden')
+  }else{
+    //save list in local storage
+    localStorage.setItem('cart', JSON.stringify(cartList))
+    localStorage.setItem('cart-total', JSON.stringify(cartTotals))    
   }
   updateOrder()
 }
 
+const deleteEvent = ()=>{
+  try{
+    document.querySelectorAll("aside #delete-btn").forEach((btn)=>{
+      btn.addEventListener('click', ()=>{
+        deleteItem(btn)
+      })
+    })
+  }catch(err){}  
+}
+
 // implement event listener for delete function and update item function on page load
 updateItem()
-
-try{
-  document.querySelectorAll("aside #delete-btn").forEach((btn)=>{
-    btn.addEventListener('click', ()=>{
-      deleteItem(btn)
-    })
-  })
-}catch(err){}
+deleteEvent()
 
 // add event listener to checkout btn
+var page = "pre-order"
 checkoutBtn.addEventListener('click', (e)=>{
-  localStorage.setItem('page', 'pre-order')
+  console.log(preOrderList)
+  e.preventDefault();
+  fetch('http://localhost:8000/client-api/products-confirm/',{
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    credentials: "omit",
+    body: JSON.stringify({preOrderList, page})
+  }
+  ) 
+  .then(res => res.json())
+  .then(data => {
+    console.log(data)
+    preOrderTotals.cost = data.total
+    localStorage.setItem('pcart-total', JSON.stringify(preOrderTotals))
+    localStorage.setItem('page', 'pre-order')
+    window.location.href = 'checkout.html'
+  })
+  .catch(err => console.log(err))
 })
-
 
 
 

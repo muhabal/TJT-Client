@@ -40,10 +40,6 @@ const customProductList = (adminProducts)=>{
 
 const productsContainer= document.getElementById("products-container")
 
-/// get checkout btn
-var checkoutBtn = document.getElementById('checkout')
-
-
 // // get all the buttons
 // const addBtns = productsContainer.querySelectorAll('[data-button-id]')
 

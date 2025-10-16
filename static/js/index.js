@@ -1,13 +1,20 @@
-// object for storing items in cart and create a dict for totals
-if (JSON.parse(localStorage.getItem('cart'))){
-  var cartList = JSON.parse(localStorage.getItem('cart'))
-  var cartTotals = JSON.parse(localStorage.getItem('cart-total'))
-  checkoutBtn.classList.remove('!hidden')
-}else{
-  var cartList = {}
-  var cartTotals = {}
-}
+const checkoutBtn = document.getElementById('checkout')
 
+// object for storing items in cart and create a dict for totals
+try{
+  if(localStorage.getItem('cart')){
+    var cartList = JSON.parse(localStorage.getItem('cart'))
+    var cartTotals = JSON.parse(localStorage.getItem('cart-total'))
+    console.log(cartList)
+    console.log(cartTotals)
+    checkoutBtn.classList.remove('!hidden')    
+  }else{
+    var cartList = {}
+    var cartTotals = {}
+  }
+}catch(err){
+
+}
 
 // var adminProducts;
 // var products;
@@ -111,9 +118,11 @@ const toCart = (originId,name, size, quantity,id,price, stock)=>{
   } else if (quantity > Number(stock)){
     alert(`quantity greater than what is left in stock : ${stock}`)
   } else if(`${originId}-${size}` in cartList){
-      alert('this item is already in the cart')
+      alert('this item is already in the cart') 
+
   }
   else{
+    console.log(cartList)
     Alpine.$data(cartContainer.parentElement).empty = false
 
     // add to cart block
@@ -136,12 +145,14 @@ const toCart = (originId,name, size, quantity,id,price, stock)=>{
             </li>
     `    
     Cart(originId,name,size, quantity, id, price)
+    deleteEvent()
   }
 }
 
 // create funtion to add products to cart
 const Cart = (originId,name, size, quantity, id, price)=>{
-  cartList[`${originId}-${size}`] = {"name":name, "size": size, "quantity":quantity, "price":price, "id":id, "originId":originId}
+  var total = Number(price) * Number(quantity)
+  cartList[`${originId}-${size}`] = {"name":name, "size": size, "quantity":quantity, "price":price, "id":id, "originId":originId, "total":total}
   updateOrder()
   updateItem()
   //save list in local storage
@@ -219,6 +230,8 @@ const updateTotal = (quantity, price, item)=>{
   updateOrder()
 }
 
+
+
 // function for deleting item from cart
 const deleteItem = (btn)=>{
   const item = btn.parentElement.parentElement
@@ -226,7 +239,7 @@ const deleteItem = (btn)=>{
   const size = item.dataset.size
   item.remove()
   delete cartList[`${id}-${size}`]
-
+  console.log(cartList)
   // check if cart is empty
   if (Object.keys(cartList).length == 0){
 
@@ -237,28 +250,57 @@ const deleteItem = (btn)=>{
     
     // make checkout btn hidden
     checkoutBtn.classList.add('!hidden')
+  }else{
+    //save list in local storage
+    localStorage.setItem('cart', JSON.stringify(cartList))
+    localStorage.setItem('cart-total', JSON.stringify(cartTotals))
   }
   updateOrder()
 }
 
+const deleteEvent = ()=>{
+  try{
+    document.querySelectorAll("aside #delete-btn").forEach((btn)=>{
+      btn.addEventListener('click', ()=>{
+        deleteItem(btn)
+      })
+    })
+  }catch(err){}  
+}
 // implement event listener for delete function and update item function on page load
 updateItem()
+deleteEvent()
 
-try{
-  document.querySelectorAll("aside #delete-btn").forEach((btn)=>{
-    btn.addEventListener('click', ()=>{
-      deleteItem(btn)
-    })
-  })
-}catch(err){}
+
+
 
 // add event listener to checkout btn
+var page = "index"
 checkoutBtn.addEventListener('click', (e)=>{
-  localStorage.setItem('page', 'index')
+  console.log(cartList)
+  e.preventDefault();
+  fetch('http://localhost:8000/client-api/products-confirm/',{
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    credentials: "omit",
+    body: JSON.stringify({cartList, page})
+  }
+  ) 
+  .then(res => res.json())
+  .then(data => {
+    console.log(data)
+    cartTotals.cost = data.total
+    localStorage.setItem('cart-total', JSON.stringify(cartTotals))
+    localStorage.setItem('page', 'index')
+    window.location.href = 'checkout.html'
+  })
+  .catch(err => console.log(err))
 })
 
 // confirm all parameters with backend for submitting
-// const checkoutBtn = document.getElementById('checkout')
+// 
 // checkoutBtn.addEventListener('click', (e)=>{
 //   fetch('/confirm-order/', {
 //     method: 'POST',
